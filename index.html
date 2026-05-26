@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cup Predictor | WM Tippspiel 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0c1020; color: #f3f4f6; font-family: sans-serif; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <header class="bg-[#0a192f] border-b border-[#d4af37]/30 p-4 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-200 tracking-wider uppercase">
+                🏆 World Cup 2026
+            </h1>
+            <div class="flex items-center gap-3">
+                <button onclick="switchLang('de')" id="btn-de" class="px-2 py-1 rounded text-xs font-bold transition-all bg-amber-500 text-black">DE</button>
+                <button onclick="switchLang('en')" id="btn-en" class="px-2 py-1 rounded text-xs font-bold transition-all bg-slate-700 text-white">EN</button>
+                <button onclick="clearAllTips()" id="btn-clear" class="bg-red-900/40 hover:bg-red-900/80 text-red-200 text-xs px-3 py-1.5 rounded-xl border border-red-700/30 transition-all ml-2">
+                    🗑️ Alle Tipps löschen
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto p-4 flex-grow">
+
+        <div class="bg-[#111827] border border-slate-800 rounded-2xl p-4 mb-6 flex justify-between items-center shadow-xl">
+            <div>
+                <span class="text-xs text-gray-400 block uppercase tracking-wider" id="label-player">Spieler</span>
+                <span id="player-name-display" class="text-xl font-bold text-white">Gast / Guest</span>
+            </div>
+            <button onclick="changeName()" id="btn-change-name" class="text-xs bg-slate-800 hover:bg-slate-700 text-gray-300 px-3 py-2 rounded-xl transition-all">
+                ✏️ Name ändern
+            </button>
+        </div>
+
+        <section id="setup-section" class="bg-[#111827] border border-slate-800 rounded-2xl p-6 mb-6 shadow-xl hidden">
+            <h2 class="text-xl font-bold mb-2 text-amber-400" id="setup-title">Trage deinen Namen ein</h2>
+            <p class="text-xs text-gray-400 mb-4" id="setup-desc">Deine Tipps werden automatisch auf deinem Gerät gespeichert, während du tippst.</p>
+            <div class="flex gap-2">
+                <input type="text" id="username-input" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white w-full focus:outline-none focus:border-amber-400" placeholder="z.B. Opa Heinz">
+                <button onclick="saveUsername()" id="setup-btn" class="bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold px-6 py-3 rounded-xl transition-all whitespace-nowrap">Starten</button>
+            </div>
+        </section>
+
+        <div class="space-y-6">
+            <div id="matches-container" class="space-y-3"></div>
+            
+            <div class="bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <h3 class="text-lg font-bold text-amber-400" id="export-title">Tipps an Turnierleitung senden</h3>
+                <p class="text-xs text-gray-400" id="export-desc">Du musst nicht alle Spiele auf einmal tippen. Du kannst auch Teiltipps absenden.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <button onclick="exportWhatsApp()" class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold px-6 py-4 rounded-xl shadow-md transition-all flex flex-col items-center justify-center text-center">
+                        <span class="text-base" id="icon-msger-title">💬 Per WhatsApp / Messenger</span>
+                        <span class="text-[10px] font-normal opacity-80 mt-1" id="icon-msger-desc">Kopiert den Tipptext direkt in deine Zwischenablage</span>
+                    </button>
+                    <button onclick="exportMailCSV()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-6 py-4 rounded-xl shadow-md transition-all flex flex-col items-center justify-center text-center">
+                        <span class="text-base" id="icon-mail-title">📧 Per E-Mail (CSV-Format)</span>
+                        <span class="text-[10px] font-normal opacity-80 mt-1" id="icon-mail-desc">Öffnet deine Mail-App mit den strukturierten Daten</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    let currentLang = localStorage.getItem('wc_lang_v2') || 'de';
+    let currentUser = localStorage.getItem('wc_user_v2') || '';
+
+    const teamNames = {
+        "MEX": { de: "Mexiko", en: "Mexico" }, "RSA": { de: "Südafrika", en: "South Africa" },
+        "KOR": { de: "Südkorea", en: "South Korea" }, "CZE": { de: "Tschechien", en: "Czechia" },
+        "CAN": { de: "Kanada", en: "Canada" }, "BIH": { de: "Bosnien", en: "Bosnia" },
+        "QAT": { de: "Katar", en: "Qatar" }, "SUI": { de: "Schweiz", en: "Switzerland" },
+        "BRA": { de: "Brasilien", en: "Brazil" }, "MAR": { de: "Marokko", en: "Morocco" },
+        "HAI": { de: "Haiti", en: "Haiti" }, "SCO": { de: "Schottland", en: "Scotland" },
+        "USA": { de: "USA", en: "USA" }, "PAR": { de: "Paraguay", en: "Paraguay" },
+        "AUS": { de: "Australien", en: "Australia" }, "TUR": { de: "Türkei", en: "Turkey" },
+        "GER": { de: "Deutschland", en: "Germany" }, "CUW": { de: "Curaçao", en: "Curaçao" },
+        "CIV": { de: "Elfenbeinküste", en: "Ivory Coast" }, "ECU": { de: "Ecuador", en: "Ecuador" },
+        "NED": { de: "Niederlande", en: "Netherlands" }, "JPN": { de: "Japan", en: "Japan" },
+        "SWE": { de: "Schweden", en: "Sweden" }, "TUN": { de: "Tunesien", en: "Tunisia" },
+        "BEL": { de: "Belgien", en: "Belgium" }, "EGY": { de: "Ägypten", en: "Egypt" },
+        "IRN": { de: "Iran", en: "Iran" }, "NZL": { de: "Neuseeland", en: "New Zealand" },
+        "ESP": { de: "Spanien",  en: "Spain" }, "CPV": { de: "Kap Verde", en: "Cape Verde" },
+        "KSA": { de: "Saudi-Arabien", en: "Saudi Arabia" }, "URU": { de: "Uruguay", en: "Uruguay" },
+        "FRA": { de: "Frankreich", en: "France" }, "SEN": { de: "Senegal", en: "Senegal" },
+        "IRQ": { de: "Irak", en: "Iraq" }, "NOR": { de: "Norwegen", en: "Norway" },
+        "ARG": { de: "Argentinien", en: "Argentina" }, "ALG": { de: "Algerien", en: "Algeria" },
+        "AUT": { de: "Österreich", en: "Austria" }, "JOR": { de: "Jordanien", en: "Jordan" },
+        "POR": { de: "Portugal", en: "Portugal" }, "COD": { de: "DR Kongo", en: "DR Congo" },
+        "UZB": { de: "Usbekistan", en: "Uzbekistan" }, "COL": { de: "Kolumbien", en: "Colombia" },
+        "ENG": { de: "England", en: "England" }, "CRO": { de: "Kroatien", en: "Croatia" },
+        "GHA": { de: "Ghana", en: "Ghana" }, "PAN": { de: "Panama", en: "Panama" }
+    };
+
+    function getTeamName(code) {
+        if (!code || !teamNames[code]) return code || '?';
+        return teamNames[code][currentLang] || teamNames[code]['de'] || code;
+    }
+
+    let matches = [
+        { id:"match_1",  team1:"MEX", team2:"RSA", labelDe:"Gruppe A", labelEn:"Group A", date:"11.06", time:"21:00" },
+        { id:"match_2",  team1:"KOR", team2:"CZE", labelDe:"Gruppe A", labelEn:"Group A", date:"12.06", time:"04:00" },
+        { id:"match_3",  team1:"MEX", team2:"KOR", labelDe:"Gruppe A", labelEn:"Group A", date:"19.06", time:"03:00" },
+        { id:"match_4",  team1:"CZE", team2:"RSA", labelDe:"Gruppe A", labelEn:"Group A", date:"18.06", time:"18:00" },
+        { id:"match_5",  team1:"CAN", team2:"BIH", labelDe:"Gruppe B", labelEn:"Group B", date:"12.06", time:"21:00" },
+        { id:"match_6",  team1:"QAT", team2:"SUI", labelDe:"Gruppe B", labelEn:"Group B", date:"13.06", time:"21:00" },
+        { id:"match_7",  team1:"SUI", team2:"BIH", labelDe:"Gruppe B", labelEn:"Group B", date:"18.06", time:"21:00" },
+        { id:"match_8",  team1:"CAN", team2:"QAT", labelDe:"Gruppe B", labelEn:"Group B", date:"19.06", time:"00:00" },
+        { id:"match_9",  team1:"BRA", team2:"MAR", labelDe:"Gruppe C", labelEn:"Group C", date:"14.06", time:"00:00" },
+        { id:"match_10", team1:"HAI", team2:"SCO", labelDe:"Gruppe C", labelEn:"Group C", date:"14.06", time:"03:00" },
+        { id:"match_11", team1:"SCO", team2:"MAR", labelDe:"Gruppe C", labelEn:"Group C", date:"20.06", time:"00:00" },
+        { id:"match_12", team1:"BRA", team2:"HAI", labelDe:"Gruppe C", labelEn:"Group C", date:"20.06", time:"02:30" },
+        { id:"match_13", team1:"USA", team2:"PAR", labelDe:"Gruppe D", labelEn:"Group D", date:"13.06", time:"03:00" },
+        { id:"match_14", team1:"AUS", team2:"TUR", labelDe:"Gruppe D", labelEn:"Group D", date:"14.06", time:"06:00" },
+        { id:"match_15", team1:"USA", team2:"AUS", labelDe:"Gruppe D", labelEn:"Group D", date:"19.06", time:"21:00" },
+        { id:"match_16", team1:"TUR", team2:"PAR", labelDe:"Gruppe D", labelEn:"Group D", date:"20.06", time:"05:00" },
+        { id:"match_17", team1:"GER", team2:"CUW", labelDe:"Gruppe E", labelEn:"Group E", date:"14.06", time:"19:00" },
+        { id:"match_18", team1:"CIV", team2:"ECU", labelDe:"Gruppe E", labelEn:"Group E", date:"15.06", time:"01:00" },
+        { id:"match_19", team1:"GER", team2:"CIV", labelDe:"Gruppe E", labelEn:"Group E", date:"20.06", time:"22:00" },
+        { id:"match_20", team1:"ECU", team2:"CUW", labelDe:"Gruppe E", labelEn:"Group E", date:"21.06", time:"02:00" },
+        { id:"match_21", team1:"NED", team2:"JPN", labelDe:"Gruppe F", labelEn:"Group F", date:"14.06", time:"22:00" },
+        { id:"match_22", team1:"SWE", team2:"TUN", labelDe:"Gruppe F", labelEn:"Group F", date:"15.06", time:"04:00" },
+        { id:"match_23", team1:"NED", team2:"SWE", labelDe:"Gruppe F", labelEn:"Group F", date:"20.06", time:"19:00" },
+        { id:"match_24", team1:"TUN", team2:"JPN", labelDe:"Gruppe F", labelEn:"Group F", date:"21.06", time:"06:00" },
+        { id:"match_25", team1:"BEL", team2:"EGY", labelDe:"Gruppe G", labelEn:"Group G", date:"15.06", time:"21:00" },
+        { id:"match_26", team1:"IRN", team2:"NZL", labelDe:"Gruppe G", labelEn:"Group G", date:"16.06", time:"03:00" },
+        { id:"match_27", team1:"BEL", team2:"IRN", labelDe:"Gruppe G", labelEn:"Group G", date:"21.06", time:"21:00" },
+        { id:"match_28", team1:"NZL", team2:"EGY", labelDe:"Gruppe G", labelEn:"Group G", date:"22.06", time:"03:00" },
+        { id:"match_29", team1:"ESP", team2:"CPV", labelDe:"Gruppe H", labelEn:"Group H", date:"15.06", time:"18:00" },
+        { id:"match_30", team1:"KSA", team2:"URU", labelDe:"Gruppe H", labelEn:"Group H", date:"16.06", time:"00:00" },
+        { id:"match_31", team1:"ESP", team2:"KSA", labelDe:"Gruppe H", labelEn:"Group H", date:"21.06", time:"18:00" },
+        { id:"match_32", team1:"URU", team2:"CPV", labelDe:"Gruppe H", labelEn:"Group H", date:"22.06", time:"00:00" }
+    ];
+
+    const rest = ["FRA", "SEN", "IRQ", "NOR", "ARG", "ALG", "AUT", "JOR", "POR", "COD", "UZB", "COL", "ENG", "CRO", "GHA", "PAN"];
+    for (let i = 33; i <= 72; i++) {
+        let idx1 = (i - 33) % rest.length; let idx2 = (i - 32) % rest.length;
+        matches.push({ 
+            id: `match_${i}`, team1: rest[idx1], team2: rest[idx2], 
+            labelDe: `Spiel ${i}`, labelEn: `Match ${i}`, date: "25.06", time: "20:00" 
+        });
+    }
+
+    function getTips() { return JSON.parse(localStorage.getItem('wc_v2_' + currentUser)) || {}; }
+
+    function saveTip(mId, side, val) {
+        if (!currentUser) return;
+        const tips = getTips();
+        if (!tips[mId]) tips[mId] = { home: '', away: '' };
+        tips[mId][side] = val !== '' ? parseInt(val) : '';
+        localStorage.setItem('wc_v2_' + currentUser, JSON.stringify(tips));
+    }
+
+    function switchLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('wc_lang_v2', lang);
+        
+        // Header Buttons
+        document.getElementById('btn-de').className = `px-2 py-1 rounded text-xs font-bold ${lang==='de' ? 'bg-amber-500 text-black' : 'bg-slate-700 text-white'}`;
+        document.getElementById('btn-en').className = `px-2 py-1 rounded text-xs font-bold ${lang==='en' ? 'bg-amber-500 text-black' : 'bg-slate-700 text-white'}`;
+        document.getElementById('btn-clear').textContent = lang === 'de' ? '🗑️ Alle Tipps löschen' : '🗑️ Clear all tips';
+
+        // Spieler-Bereich
+        document.getElementById('label-player').textContent = lang === 'de' ? 'Spieler' : 'Player';
+        document.getElementById('btn-change-name').textContent = lang === 'de' ? '✏️ Name ändern' : '✏️ Change name';
+
+        // Setup-Bereich
+        document.getElementById('setup-title').textContent = lang === 'de' ? 'Trage deinen Namen ein' : 'Enter your name';
+        document.getElementById('setup-desc').textContent = lang === 'de' ? 'Deine Tipps werden automatisch auf deinem Gerät gespeichert, während du tippst.' : 'Your predictions are automatically saved on your device as you type.';
+        document.getElementById('username-input').placeholder = lang === 'de' ? 'z.B. Opa Heinz' : 'e.g. Uncle Sam';
+        document.getElementById('setup-btn').textContent = lang === 'de' ? 'Starten' : 'Start';
+
+        // Export-Icons / Buttons am Ende
+        document.getElementById('export-title').textContent = lang === 'de' ? 'Tipps an Turnierleitung senden' : 'Send predictions to host';
+        document.getElementById('export-desc').textContent = lang === 'de' ? 'Du musst nicht alle Spiele auf einmal tippen. Du kannst auch Teiltipps absenden.' : 'You do not have to predict all matches at once. Partial submissions are allowed.';
+        
+        document.getElementById('icon-msger-title').textContent = lang === 'de' ? '💬 Per WhatsApp / Messenger' : '💬 Via WhatsApp / Messenger';
+        document.getElementById('icon-msger-desc').textContent = lang === 'de' ? 'Kopiert den Tipptext direkt in deine Zwischenablage' : 'Copies the prediction text directly into your clipboard';
+        
+        document.getElementById('icon-mail-title').textContent = lang === 'de' ? '📧 Per E-Mail (CSV-Format)' : '📧 Via E-Mail (CSV format)';
+        document.getElementById('icon-mail-desc').textContent = lang === 'de' ? 'Öffnet deine Mail-App mit den strukturierten Daten' : 'Opens your email app with the structured data';
+
+        renderMatches();
+    }
+
+    function renderMatches() {
+        const container = document.getElementById('matches-container');
+        if (!container) return; container.innerHTML = '';
+        const tips = getTips();
+
+        matches.forEach(m => {
+            const t = tips[m.id] || { home: '', away: '' };
+            const label = currentLang === 'de' ? m.labelDe : m.labelEn;
+            container.innerHTML += `
+                <div class="bg-[#111827] border border-slate-800 rounded-xl p-4 flex items-center justify-between gap-4 shadow-sm">
+                    <div class="flex flex-col text-left">
+                        <div class="flex items-center gap-2"><span class="text-xs text-amber-500 font-mono">${label}</span><span class="text-[10px] text-gray-500">📅 ${m.date} - ${m.time}</span></div>
+                        <div class="text-sm font-bold text-gray-200 mt-1">${getTeamName(m.team1)} vs ${getTeamName(m.team2)}</div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <input type="number" min="0" max="99" value="${t.home !== '' && t.home !== undefined ? t.home : ''}" oninput="saveTip('${m.id}', 'home', this.value)" class="w-10 bg-slate-900 border border-slate-700 rounded-lg py-1 text-center font-bold text-white focus:border-amber-400 focus:outline-none">
+                        <span class="text-gray-600">:</span>
+                        <input type="number" min="0" max="99" value="${t.away !== '' && t.away !== undefined ? t.away : ''}" oninput="saveTip('${m.id}', 'away', this.value)" class="w-10 bg-slate-900 border border-slate-700 rounded-lg py-1 text-center font-bold text-white focus:border-amber-400 focus:outline-none">
+                    </div>
+                </div>`;
+        });
+    }
+
+    function exportWhatsApp() {
+        if (!currentUser) { 
+            alert(currentLang === 'de' ? "Bitte trag zuerst deinen Namen ein!" : "Please enter your name first!"); 
+            return; 
+        }
+        const tips = getTips(); 
+        let text = currentLang === 'de' ? `🏆 WM-Tipps von ${currentUser}:\n` : `🏆 World Cup Predictions from ${currentUser}:\n`; 
+        let count = 0;
+        
+        matches.forEach(m => {
+            const t = tips[m.id];
+            if (t && t.home !== '' && t.away !== '' && t.home !== undefined && t.away !== undefined) {
+                text += `${m.id.replace('match_', '')}: ${m.team1}-${m.team2} [${t.home}:${t.away}]\n`; count++;
+            }
+        });
+        
+        if(count === 0) { 
+            alert(currentLang === 'de' ? "Du hast noch keine Spiele getippt!" : "You haven't predicted any matches yet!"); 
+            return; 
+        }
+        
+        navigator.clipboard.writeText(text).then(() => { 
+            alert(currentLang === 'de' ? "📋 Tippzettel in Zwischenablage kopiert! Öffne WhatsApp und füge den Text ein." : "📋 Prediction sheet copied to clipboard! Open WhatsApp and paste the text."); 
+        });
+    }
+
+    function exportMailCSV() {
+        if (!currentUser) { 
+            alert(currentLang === 'de' ? "Bitte trag zuerst deinen Namen ein!" : "Please enter your name first!"); 
+            return; 
+        }
+        const tips = getTips(); 
+        let csv = "Spieler;Spiel;Heim;Gast;TippHeim;TippGast\n"; 
+        let count = 0;
+        
+        matches.forEach(m => {
+            const t = tips[m.id];
+            if (t && (t.home !== '' || t.away !== '') && t.home !== undefined && t.away !== undefined) {
+                csv += `${currentUser};${m.id};${m.team1};${m.team2};${t.home};${t.away}\n`; count++;
+            }
+        });
+        
+        if(count === 0) { 
+            alert(currentLang === 'de' ? "Du hast noch keine Spiele getippt!" : "You haven't predicted any matches yet!"); 
+            return; 
+        }
+        
+        const subject = currentLang === 'de' ? `WM Tipps von ${currentUser}` : `World Cup Predictions by ${currentUser}`;
+        const body = currentLang === 'de' ? `Hier sind meine Tippdaten:\n\n` : `Here are my prediction data:\n\n`;
+        
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + csv)}`;
+    }
+
+    function saveUsername() {
+        const input = document.getElementById('username-input').value.trim();
+        if (!input) return; currentUser = input;
+        localStorage.setItem('wc_user_v2', currentUser);
+        document.getElementById('player-name-display').textContent = currentUser;
+        document.getElementById('setup-section').classList.add('hidden');
+        renderMatches();
+    }
+
+    function changeName() {
+        document.getElementById('setup-section').classList.remove('hidden');
+        document.getElementById('username-input').focus();
+    }
+
+    function clearAllTips() {
+        const msg = currentLang === 'de' ? "Möchtest du wirklich alle deine eingetragenen Tipps auf diesem Gerät löschen?" : "Do you really want to clear all your predictions on this device?";
+        if (confirm(msg)) {
+            localStorage.removeItem('wc_v2_' + currentUser); renderMatches();
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (currentUser) {
+            document.getElementById('player-name-display').textContent = currentUser;
+        } else {
+            document.getElementById('setup-section').classList.remove('hidden');
+        }
+        switchLang(currentLang);
+    });
+    </script>
+</body>
+</html>
