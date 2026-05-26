@@ -16,13 +16,13 @@
     <header class="bg-[#0a192f] border-b border-[#d4af37]/30 p-4 sticky top-0 z-50 shadow-lg">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <h1 class="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-200 tracking-wider uppercase">
-                ≡ƒÅå World Cup 2026
+                🏆 World Cup 2026
             </h1>
             <div class="flex items-center gap-3">
                 <button onclick="switchLang('de')" id="btn-de" class="px-2 py-1 rounded text-xs font-bold transition-all bg-amber-500 text-black">DE</button>
                 <button onclick="switchLang('en')" id="btn-en" class="px-2 py-1 rounded text-xs font-bold transition-all bg-slate-700 text-white">EN</button>
                 <button onclick="clearAllTips()" id="btn-clear" class="bg-red-900/40 hover:bg-red-900/80 text-red-200 text-xs px-3 py-1.5 rounded-xl border border-red-700/30 transition-all ml-2">
-                    ≡ƒùæ∩╕Å Alle Tipps l├╢schen
+                    🗑️ Alle Tipps löschen
                 </button>
             </div>
         </div>
@@ -36,13 +36,13 @@
                 <span id="player-name-display" class="text-xl font-bold text-white">Gast / Guest</span>
             </div>
             <button onclick="changeName()" id="btn-change-name" class="text-xs bg-slate-800 hover:bg-slate-700 text-gray-300 px-3 py-2 rounded-xl transition-all">
-                Γ£Å∩╕Å Name ├ñndern
+                ✏️ Name ändern
             </button>
         </div>
 
         <section id="setup-section" class="bg-[#111827] border border-slate-800 rounded-2xl p-6 mb-6 shadow-xl hidden">
             <h2 class="text-xl font-bold mb-2 text-amber-400" id="setup-title">Trage deinen Namen ein</h2>
-            <p class="text-xs text-gray-400 mb-4" id="setup-desc">Deine Tipps werden automatisch auf deinem Ger├ñt gespeichert, w├ñhrend du tippst.</p>
+            <p class="text-xs text-gray-400 mb-4" id="setup-desc">Deine Tipps werden automatisch auf deinem Gerät gespeichert, während du tippst.</p>
             <div class="flex gap-2">
                 <input type="text" id="username-input" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white w-full focus:outline-none focus:border-amber-400" placeholder="z.B. Opa Heinz">
                 <button onclick="saveUsername()" id="setup-btn" class="bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold px-6 py-3 rounded-xl transition-all whitespace-nowrap">Starten</button>
@@ -58,12 +58,12 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <button onclick="exportWhatsApp()" class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold px-6 py-4 rounded-xl shadow-md transition-all flex flex-col items-center justify-center text-center">
-                        <span class="text-base" id="icon-msger-title">≡ƒÆ¼ Per WhatsApp / Messenger</span>
+                        <span class="text-base" id="icon-msger-title">💬 Per WhatsApp / Messenger</span>
                         <span class="text-[10px] font-normal opacity-80 mt-1" id="icon-msger-desc">Kopiert den Tipptext direkt in deine Zwischenablage</span>
                     </button>
                     <button onclick="exportMailCSV()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-6 py-4 rounded-xl shadow-md transition-all flex flex-col items-center justify-center text-center">
-                        <span class="text-base" id="icon-mail-title">≡ƒôº Per E-Mail (CSV-Format)</span>
-                        <span class="text-[10px] font-normal opacity-80 mt-1" id="icon-mail-desc">├ûffnet deine Mail-App mit den strukturierten Daten</span>
+                        <span class="text-base" id="icon-mail-title">📧 Per E-Mail (CSV-Format)</span>
+                        <span class="text-[10px] font-normal opacity-80 mt-1" id="icon-mail-desc">Öffnet deine Mail-App mit den strukturierten Daten</span>
                     </button>
                 </div>
             </div>
@@ -75,26 +75,26 @@
     let currentUser = localStorage.getItem('wc_user_v2') || '';
 
     const teamNames = {
-        "MEX": { de: "Mexiko", en: "Mexico" }, "RSA": { de: "S├╝dafrika", en: "South Africa" },
-        "KOR": { de: "S├╝dkorea", en: "South Korea" }, "CZE": { de: "Tschechien", en: "Czechia" },
+        "MEX": { de: "Mexiko", en: "Mexico" }, "RSA": { de: "Südafrika", en: "South Africa" },
+        "KOR": { de: "Südkorea", en: "South Korea" }, "CZE": { de: "Tschechien", en: "Czechia" },
         "CAN": { de: "Kanada", en: "Canada" }, "BIH": { de: "Bosnien", en: "Bosnia" },
         "QAT": { de: "Katar", en: "Qatar" }, "SUI": { de: "Schweiz", en: "Switzerland" },
         "BRA": { de: "Brasilien", en: "Brazil" }, "MAR": { de: "Marokko", en: "Morocco" },
         "HAI": { de: "Haiti", en: "Haiti" }, "SCO": { de: "Schottland", en: "Scotland" },
         "USA": { de: "USA", en: "USA" }, "PAR": { de: "Paraguay", en: "Paraguay" },
-        "AUS": { de: "Australien", en: "Australia" }, "TUR": { de: "T├╝rkei", en: "Turkey" },
-        "GER": { de: "Deutschland", en: "Germany" }, "CUW": { de: "Cura├ºao", en: "Cura├ºao" },
-        "CIV": { de: "Elfenbeink├╝ste", en: "Ivory Coast" }, "ECU": { de: "Ecuador", en: "Ecuador" },
+        "AUS": { de: "Australien", en: "Australia" }, "TUR": { de: "Türkei", en: "Turkey" },
+        "GER": { de: "Deutschland", en: "Germany" }, "CUW": { de: "Curaçao", en: "Curaçao" },
+        "CIV": { de: "Elfenbeinküste", en: "Ivory Coast" }, "ECU": { de: "Ecuador", en: "Ecuador" },
         "NED": { de: "Niederlande", en: "Netherlands" }, "JPN": { de: "Japan", en: "Japan" },
         "SWE": { de: "Schweden", en: "Sweden" }, "TUN": { de: "Tunesien", en: "Tunisia" },
-        "BEL": { de: "Belgien", en: "Belgium" }, "EGY": { de: "├ägypten", en: "Egypt" },
+        "BEL": { de: "Belgien", en: "Belgium" }, "EGY": { de: "Ägypten", en: "Egypt" },
         "IRN": { de: "Iran", en: "Iran" }, "NZL": { de: "Neuseeland", en: "New Zealand" },
         "ESP": { de: "Spanien",  en: "Spain" }, "CPV": { de: "Kap Verde", en: "Cape Verde" },
         "KSA": { de: "Saudi-Arabien", en: "Saudi Arabia" }, "URU": { de: "Uruguay", en: "Uruguay" },
         "FRA": { de: "Frankreich", en: "France" }, "SEN": { de: "Senegal", en: "Senegal" },
         "IRQ": { de: "Irak", en: "Iraq" }, "NOR": { de: "Norwegen", en: "Norway" },
         "ARG": { de: "Argentinien", en: "Argentina" }, "ALG": { de: "Algerien", en: "Algeria" },
-        "AUT": { de: "├ûsterreich", en: "Austria" }, "JOR": { de: "Jordanien", en: "Jordan" },
+        "AUT": { de: "Österreich", en: "Austria" }, "JOR": { de: "Jordanien", en: "Jordan" },
         "POR": { de: "Portugal", en: "Portugal" }, "COD": { de: "DR Kongo", en: "DR Congo" },
         "UZB": { de: "Usbekistan", en: "Uzbekistan" }, "COL": { de: "Kolumbien", en: "Colombia" },
         "ENG": { de: "England", en: "England" }, "CRO": { de: "Kroatien", en: "Croatia" },
@@ -167,15 +167,15 @@
         // Header Buttons
         document.getElementById('btn-de').className = `px-2 py-1 rounded text-xs font-bold ${lang==='de' ? 'bg-amber-500 text-black' : 'bg-slate-700 text-white'}`;
         document.getElementById('btn-en').className = `px-2 py-1 rounded text-xs font-bold ${lang==='en' ? 'bg-amber-500 text-black' : 'bg-slate-700 text-white'}`;
-        document.getElementById('btn-clear').textContent = lang === 'de' ? '≡ƒùæ∩╕Å Alle Tipps l├╢schen' : '≡ƒùæ∩╕Å Clear all tips';
+        document.getElementById('btn-clear').textContent = lang === 'de' ? '🗑️ Alle Tipps löschen' : '🗑️ Clear all tips';
 
         // Spieler-Bereich
         document.getElementById('label-player').textContent = lang === 'de' ? 'Spieler' : 'Player';
-        document.getElementById('btn-change-name').textContent = lang === 'de' ? 'Γ£Å∩╕Å Name ├ñndern' : 'Γ£Å∩╕Å Change name';
+        document.getElementById('btn-change-name').textContent = lang === 'de' ? '✏️ Name ändern' : '✏️ Change name';
 
         // Setup-Bereich
         document.getElementById('setup-title').textContent = lang === 'de' ? 'Trage deinen Namen ein' : 'Enter your name';
-        document.getElementById('setup-desc').textContent = lang === 'de' ? 'Deine Tipps werden automatisch auf deinem Ger├ñt gespeichert, w├ñhrend du tippst.' : 'Your predictions are automatically saved on your device as you type.';
+        document.getElementById('setup-desc').textContent = lang === 'de' ? 'Deine Tipps werden automatisch auf deinem Gerät gespeichert, während du tippst.' : 'Your predictions are automatically saved on your device as you type.';
         document.getElementById('username-input').placeholder = lang === 'de' ? 'z.B. Opa Heinz' : 'e.g. Uncle Sam';
         document.getElementById('setup-btn').textContent = lang === 'de' ? 'Starten' : 'Start';
 
@@ -183,11 +183,11 @@
         document.getElementById('export-title').textContent = lang === 'de' ? 'Tipps an Turnierleitung senden' : 'Send predictions to host';
         document.getElementById('export-desc').textContent = lang === 'de' ? 'Du musst nicht alle Spiele auf einmal tippen. Du kannst auch Teiltipps absenden.' : 'You do not have to predict all matches at once. Partial submissions are allowed.';
         
-        document.getElementById('icon-msger-title').textContent = lang === 'de' ? '≡ƒÆ¼ Per WhatsApp / Messenger' : '≡ƒÆ¼ Via WhatsApp / Messenger';
+        document.getElementById('icon-msger-title').textContent = lang === 'de' ? '💬 Per WhatsApp / Messenger' : '💬 Via WhatsApp / Messenger';
         document.getElementById('icon-msger-desc').textContent = lang === 'de' ? 'Kopiert den Tipptext direkt in deine Zwischenablage' : 'Copies the prediction text directly into your clipboard';
         
-        document.getElementById('icon-mail-title').textContent = lang === 'de' ? '≡ƒôº Per E-Mail (CSV-Format)' : '≡ƒôº Via E-Mail (CSV format)';
-        document.getElementById('icon-mail-desc').textContent = lang === 'de' ? '├ûffnet deine Mail-App mit den strukturierten Daten' : 'Opens your email app with the structured data';
+        document.getElementById('icon-mail-title').textContent = lang === 'de' ? '📧 Per E-Mail (CSV-Format)' : '📧 Via E-Mail (CSV format)';
+        document.getElementById('icon-mail-desc').textContent = lang === 'de' ? 'Öffnet deine Mail-App mit den strukturierten Daten' : 'Opens your email app with the structured data';
 
         renderMatches();
     }
@@ -203,7 +203,7 @@
             container.innerHTML += `
                 <div class="bg-[#111827] border border-slate-800 rounded-xl p-4 flex items-center justify-between gap-4 shadow-sm">
                     <div class="flex flex-col text-left">
-                        <div class="flex items-center gap-2"><span class="text-xs text-amber-500 font-mono">${label}</span><span class="text-[10px] text-gray-500">≡ƒôà ${m.date} - ${m.time}</span></div>
+                        <div class="flex items-center gap-2"><span class="text-xs text-amber-500 font-mono">${label}</span><span class="text-[10px] text-gray-500">📅 ${m.date} - ${m.time}</span></div>
                         <div class="text-sm font-bold text-gray-200 mt-1">${getTeamName(m.team1)} vs ${getTeamName(m.team2)}</div>
                     </div>
                     <div class="flex items-center gap-1 shrink-0">
@@ -221,7 +221,7 @@
             return; 
         }
         const tips = getTips(); 
-        let text = currentLang === 'de' ? `≡ƒÅå WM-Tipps von ${currentUser}:\n` : `≡ƒÅå World Cup Predictions from ${currentUser}:\n`; 
+        let text = currentLang === 'de' ? `🏆 WM-Tipps von ${currentUser}:\n` : `🏆 World Cup Predictions from ${currentUser}:\n`; 
         let count = 0;
         
         matches.forEach(m => {
@@ -237,7 +237,7 @@
         }
         
         navigator.clipboard.writeText(text).then(() => { 
-            alert(currentLang === 'de' ? "≡ƒôï Tippzettel in Zwischenablage kopiert! ├ûffne WhatsApp und f├╝ge den Text ein." : "≡ƒôï Prediction sheet copied to clipboard! Open WhatsApp and paste the text."); 
+            alert(currentLang === 'de' ? "📋 Tippzettel in Zwischenablage kopiert! Öffne WhatsApp und füge den Text ein." : "📋 Prediction sheet copied to clipboard! Open WhatsApp and paste the text."); 
         });
     }
 
@@ -283,7 +283,7 @@
     }
 
     function clearAllTips() {
-        const msg = currentLang === 'de' ? "M├╢chtest du wirklich alle deine eingetragenen Tipps auf diesem Ger├ñt l├╢schen?" : "Do you really want to clear all your predictions on this device?";
+        const msg = currentLang === 'de' ? "Möchtest du wirklich alle deine eingetragenen Tipps auf diesem Gerät löschen?" : "Do you really want to clear all your predictions on this device?";
         if (confirm(msg)) {
             localStorage.removeItem('wc_v2_' + currentUser); renderMatches();
         }
